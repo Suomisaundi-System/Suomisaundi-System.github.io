@@ -1,3 +1,25 @@
+// Suomisaundi System: JavaScript owns the page and its structure.
+document.title = "Suomisaundi System";
+const style = document.createElement("style");
+style.textContent = `:root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark;background:#101b1f;color:#eff9f4}*{box-sizing:border-box}body{margin:0}header{padding:30px max(20px,5vw);border-bottom:1px solid #34494c;background:#16262a}h1{margin:0;font-size:clamp(26px,5vw,46px)}header p{margin:8px 0;color:#b2cec5}main{max-width:1120px;margin:0 auto;padding:28px 20px}nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:14px}button.tile{background:#1e3135;border:1px solid #3a5757;border-radius:14px;padding:22px;color:inherit;text-align:left;font:inherit;cursor:pointer}button.tile:hover,button.tile:focus-visible{background:#284247;border-color:#8de2c4}.tile strong{display:block;font-size:19px;margin:8px 0}.tile span{font-size:14px;color:#b4ccc6}section{margin-top:28px;border:1px solid #3a5757;background:#18292e;padding:25px;border-radius:15px;min-height:160px}a{color:#90e4cb}li{margin:9px 0}footer{color:#a9c4bb;text-align:center;padding:24px}`;
+document.head.append(style);
+const header = document.createElement("header");
+const heading = document.createElement("h1");
+heading.textContent = "Suomisaundi System";
+const tagline = document.createElement("p");
+tagline.textContent = "Community · Culture · Music · Knowledge";
+header.append(heading,tagline);
+const root = document.createElement("main");
+const navigation = document.createElement("nav");
+navigation.id="menu";
+navigation.setAttribute("aria-label","System modules");
+const contentPanel = document.createElement("section");
+contentPanel.id="panel";
+contentPanel.setAttribute("aria-live","polite");
+root.append(navigation,contentPanel);
+const footer = document.createElement("footer");
+footer.textContent="Suomisaundi United · Independent community platform";
+document.body.append(header,root,footer);
 "use strict";
 const modules=[
 {id:"community",icon:"👥",title:"Community",description:"Members, artists, groups and discussions",items:["Members","Artists","Groups","Discussions"]},
@@ -56,3 +78,33 @@ export function createAudioContext() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   return new AudioContextClass();
 }
+
+// suomisaundi-interrepository-messaging-v1
+// BroadcastChannel connects open pages under the same GitHub Pages origin.
+// This is ephemeral, browser-local messaging, NOT server-side synchronization.
+export const systemNode = location.pathname.split("/").filter(Boolean)[0] || "Main";
+export const systemBus = typeof BroadcastChannel !== "undefined"
+  ? new BroadcastChannel("suomisaundi-system-v1") : null;
+const systemSubscribers = new Set();
+export function onSystemMessage(callback) {
+  if (typeof callback !== "function") throw new TypeError("Callback required");
+  systemSubscribers.add(callback);
+  return () => systemSubscribers.delete(callback);
+}
+export function sendSystemMessage(type, payload = null, target = "*") {
+  if (!systemBus) return false;
+  if (typeof type !== "string" || !type || type.length > 80) throw new TypeError("Invalid message type");
+  systemBus.postMessage({
+    protocol: "suomisaundi-system-v1", source: systemNode,
+    target, type, payload, timestamp: Date.now()
+  });
+  return true;
+}
+if (systemBus) systemBus.addEventListener("message", event => {
+  const message = event.data;
+  if (!message || message.protocol !== "suomisaundi-system-v1") return;
+  if (message.target !== "*" && message.target !== systemNode) return;
+  for (const callback of systemSubscribers) {
+    try { callback(message); } catch (error) { console.error("System subscriber error", error); }
+  }
+});
