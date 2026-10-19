@@ -108,3 +108,7 @@ if (systemBus) systemBus.addEventListener("message", event => {
     try { callback(message); } catch (error) { console.error("System subscriber error", error); }
   }
 });
+
+// Registry checkpoint: static metadata describing independently hosted systems.
+import { systemRegistry, findSystem } from "./registry.js";
+export { systemRegistry, findSystem };
