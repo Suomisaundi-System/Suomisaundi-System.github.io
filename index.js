@@ -112,3 +112,6 @@ if (systemBus) systemBus.addEventListener("message", event => {
 // Registry checkpoint: static metadata describing independently hosted systems.
 import { systemRegistry, findSystem } from "./registry.js";
 export { systemRegistry, findSystem };
+
+// Shared runtime modules are independently importable by other same-origin systems.
+export * from "./runtime.js";
