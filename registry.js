@@ -16,7 +16,8 @@ const groups = {
   "Identifiers and security": ["Rotation","QR","EAN"],
   "Business operations": ["Accounting","Business","Administration","Commerce","Marketing","Finance","Project","Management","Timeline"],
   "Music industry and events": ["Event","Party","Festival","Gig","Session","Band"],
-  "System discovery": ["Inventory","Menu","Prompt"]
+  "System discovery": ["Inventory","Menu","Prompt"],
+  "Visual interface": ["Icon"]
 };
 export const systemRegistry = Object.freeze(
   Object.entries(groups).flatMap(([domain, names]) =>

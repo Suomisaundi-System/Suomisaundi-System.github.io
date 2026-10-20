@@ -119,3 +119,19 @@ export * from "./runtime.js";
 // Scalable system inventory and live command search.
 import {mountSystemCatalog} from "./catalog.js";
 export const catalogUI=mountSystemCatalog(document.querySelector("main")||document.body);
+
+
+// Desktop initialization: browser detection selects desktop or mobile/tablet layout.
+import {detectEnvironment} from "/Browser/detection.js";
+import {initializeDesktop} from "/Desktop/desktop.js";
+export const detectedEnvironment=detectEnvironment();
+if(detectedEnvironment.layout==="desktop"){
+  try {
+    const root=document.querySelector("main")||document.body;
+    const shell=document.createElement("div");
+    root.prepend(shell);
+    initializeDesktop({container:shell});
+  } catch(error) {
+    console.warn("Desktop initialization unavailable",error);
+  }
+}
