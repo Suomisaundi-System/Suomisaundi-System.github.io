@@ -18,7 +18,7 @@ contentPanel.id="panel";
 contentPanel.setAttribute("aria-live","polite");
 root.append(navigation,contentPanel);
 const footer = document.createElement("footer");
-footer.textContent="Suomisaundi United · Independent community platform";
+footer.textContent="Suomisaundi System · Independent music and community technology platform";
 document.body.append(header,root,footer);
 "use strict";
 const modules=[
@@ -129,9 +129,19 @@ if(detectedEnvironment.layout==="desktop"){
   try {
     const root=document.querySelector("main")||document.body;
     const shell=document.createElement("div");
+    shell.id="desktop-shell";
     root.prepend(shell);
     initializeDesktop({container:shell});
   } catch(error) {
     console.warn("Desktop initialization unavailable",error);
   }
 }
+
+// Independent browser capability summary; safe even when a window manager cannot start.
+const environmentSummary=document.createElement("div");
+environmentSummary.id="browser-environment";
+environmentSummary.style.cssText="font-size:12px;color:#b8d8d1;padding:8px 0";
+environmentSummary.textContent="Browser: "+detectedEnvironment.browser.name+
+  " · Platform: "+detectedEnvironment.browser.platform+
+  " · Layout: "+detectedEnvironment.layout;
+(document.querySelector("main")||document.body).prepend(environmentSummary);
