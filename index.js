@@ -121,27 +121,37 @@ import {mountSystemCatalog} from "./catalog.js";
 export const catalogUI=mountSystemCatalog(document.querySelector("main")||document.body);
 
 
-// Desktop initialization: browser detection selects desktop or mobile/tablet layout.
-import {detectEnvironment} from "/Browser/detection.js";
-import {initializeDesktop} from "/Desktop/desktop.js";
-export const detectedEnvironment=detectEnvironment();
-if(detectedEnvironment.layout==="desktop"){
-  try {
-    const root=document.querySelector("main")||document.body;
-    const shell=document.createElement("div");
-    shell.id="desktop-shell";
-    root.prepend(shell);
-    initializeDesktop({container:shell});
-  } catch(error) {
-    console.warn("Desktop initialization unavailable",error);
-  }
+// Visible desktop shell: viewport width is the primary layout signal.
+// Dynamically import subsystems so a failure does not hide the rest of the page.
+const browserStatus=document.createElement("p");
+browserStatus.id="browser-environment";
+browserStatus.style.cssText="font-size:13px;color:#b8d8d1;padding:8px 0";
+root.prepend(browserStatus);
+async function bootDesktop(){
+ const wide=matchMedia("(min-width: 900px)").matches;
+ if(!wide){browserStatus.textContent="Responsive mobile / tablet interface";return;}
+ browserStatus.textContent="Initializing browser desktop…";
+ try {
+  const [{initializeDesktop},{detectEnvironment}]=await Promise.all([
+   import("/Desktop/desktop.js?v=20261020-v3"),
+   import("/Browser/detection.js")
+  ]);
+  const environment=detectEnvironment();
+  const shell=document.createElement("div");shell.id="desktop-shell";
+  browserStatus.after(shell);
+  const desktop=initializeDesktop({container:shell,force:true});
+  if(!desktop.enabled)throw Error("Desktop did not initialize");
+  browserStatus.textContent="Browser: "+environment.browser.name+" · Platform: "+environment.browser.platform+" · Desktop ready";
+  // Keep the original module tiles accessible through a compact fallback, but show the desktop first.
+  navigation.style.display="none";
+  contentPanel.style.display="none";
+  const legacy=document.createElement("details");legacy.style.marginTop="18px";
+  const summary=document.createElement("summary");summary.textContent="Classic modules";summary.style.cursor="pointer";
+  legacy.append(summary);legacy.append(navigation,contentPanel);root.append(legacy);
+  legacy.addEventListener("toggle",()=>{navigation.style.display=legacy.open?"grid":"none";contentPanel.style.display=legacy.open?"block":"none";});
+ }catch(error){
+  browserStatus.textContent="Desktop could not start: "+(error?.message||String(error));
+  console.error("Desktop boot error",error);
+ }
 }
-
-// Independent browser capability summary; safe even when a window manager cannot start.
-const environmentSummary=document.createElement("div");
-environmentSummary.id="browser-environment";
-environmentSummary.style.cssText="font-size:12px;color:#b8d8d1;padding:8px 0";
-environmentSummary.textContent="Browser: "+detectedEnvironment.browser.name+
-  " · Platform: "+detectedEnvironment.browser.platform+
-  " · Layout: "+detectedEnvironment.layout;
-(document.querySelector("main")||document.body).prepend(environmentSummary);
+bootDesktop();
