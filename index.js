@@ -115,3 +115,7 @@ export { systemRegistry, findSystem };
 
 // Shared runtime modules are independently importable by other same-origin systems.
 export * from "./runtime.js";
+
+// Scalable system inventory and live command search.
+import {mountSystemCatalog} from "./catalog.js";
+export const catalogUI=mountSystemCatalog(document.querySelector("main")||document.body);
