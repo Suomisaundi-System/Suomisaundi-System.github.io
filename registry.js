@@ -12,7 +12,8 @@ const groups = {
   "Infrastructure": ["Network","Storage","Security","Protocols","Integration"],
   "Public services": ["Directory","Search","Media","Publishing"],
   "Devices and interfaces": ["Mobile","Tablet","Desktop","Window","Portrait","Landscape","Browser","Viewport"],
-  "Protocols and execution": ["MIME","API","URI","NodeJS","Virtualization","Sandbox","Instance"]
+  "Protocols and execution": ["MIME","API","URI","NodeJS","Virtualization","Sandbox","Instance"],
+  "Identifiers and security": ["Rotation","QR","EAN"]
 };
 export const systemRegistry = Object.freeze(
   Object.entries(groups).flatMap(([domain, names]) =>
